@@ -8,6 +8,7 @@ const GOERLI_PRIVATE_KEY = process.env.GOERLI_PRIVATE_KEY;
 module.exports = {
   deafultNetwork: "goerli", 
   solidity: "0.8.7",
+  allowUnlimitedContractSize: true,
   networks: {
     hardhat: {},
     goerli: {
