@@ -7,7 +7,7 @@ import {
   NFT_CONTRACT_ADDRESS,
   TOKEN_CONTRACT_ABI,
   TOKEN_CONTRACT_ADDRESS,
-} from "../constants";
+} from "../constants/"
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
@@ -70,7 +70,7 @@ const getTokensToBeClaimed = async() => {
 
       // Check if the tokens have already been claimed and only increase if the tokens have not been claimed 
       for (var i = 0; i < balance; i++){
-        const tokenId = await nftContract.tokenOfOwnderByIndex(address, i);
+        const tokenId = await nftContract.tokenOfOwnerByIndex(address, i);
         const claimed = await tokenContract.tokenIdsClaimed(tokenId);
         if (!claimed) {
           amount++; 
@@ -95,7 +95,11 @@ const getBalanceOfCryptoDevTokens = async () => {
     const provider = await getProviderOrSigner();
     
     //create an instance of token contract 
-    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, TOKEN_CONTRACT_ABI, provider);
+    const tokenContract = new Contract(
+      TOKEN_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI,
+      provider
+    );
 
     //Get the address of the currently connected metamask account 
     const signer = await getProviderOrSigner(true);
@@ -107,7 +111,7 @@ const getBalanceOfCryptoDevTokens = async () => {
     const balance = await tokenContract.balanceOf(address);
 
     // Balanace is a big number, so we dont need to convert it before setting it
-    setBalanceTokensToBeClaimed(balance);
+    setBalanceOfCryptoDevTokens(balance);
 
   } catch (err) {
     console.error(err);
@@ -123,7 +127,12 @@ const mintCryptoDevToken = async (amount) => {
     const signer = await getProviderOrSigner(true);
     
     // Create an instance of tokenContract 
-    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, TOKEN_CONTRACT_ABI, signer);
+    const tokenContract = new Contract(
+      TOKEN_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI,
+      signer
+    );
+
 
     // Each token is set to .001 eth, the value we need is .001 * amount 
     const value = 0.001 * amount;
@@ -131,7 +140,7 @@ const mintCryptoDevToken = async (amount) => {
       // value signifies the cost of one crypto dev token which is 0.001 eth 
       // parsing 0.001 string to ether usting the utils library from ethers.js 
       value: utils.parseEther(value.toString()),
-    } );
+    });
     setLoading(true);
     // Wait for tx to get mined 
     await tx.wait();
@@ -145,31 +154,69 @@ const mintCryptoDevToken = async (amount) => {
   }
 };
 
+  /**
+   * claimCryptoDevTokens: Helps the user claim Crypto Dev Tokens
+   */
+   const claimCryptoDevTokens = async () => {
+    try {
+      // We need a Signer here since this is a 'write' transaction.
+      // Create an instance of tokenContract
+      const signer = await getProviderOrSigner(true);
+      // Create an instance of tokenContract
+      const tokenContract = new Contract(
+        TOKEN_CONTRACT_ADDRESS,
+        TOKEN_CONTRACT_ABI,
+        signer
+      );
+      const tx = await tokenContract.claim();
+      setLoading(true);
+      // wait for the transaction to get mined
+      await tx.wait();
+      setLoading(false);
+      window.alert("Sucessfully claimed Crypto Dev Tokens");
+      await getBalanceOfCryptoDevTokens();
+      await getTotalTokensMinted();
+      await getTokensToBeClaimed();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
 //getTotalTokensMinted: retrieves how many tokens have been minted till now out of the total supply 
 
-const getTotalTokensMinted = async () => {
-  try {
-    // Get the provider from web3modal which is metamask 
-    // No need for the signer here as we are only reading the state from the block chain 
-    const provider = await getProviderOrSigner();
+  async function getTotalTokensMinted() {
+    try {
+      // Get the provider from web3modal which is metamask 
+      // No need for the signer here as we are only reading the state from the block chain 
+      const provider = await getProviderOrSigner();
 
-    // Create an instance of the token contract
-    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, TOKEN_CONTRACT_ABI, provider);
+      // Create an instance of the token contract
+      const tokenContract = new Contract(
+        TOKEN_CONTRACT_ADDRESS,
+        TOKEN_CONTRACT_ABI,
+        provider
+      );
 
-    //Get all tokens that have been minted 
-    const _tokensMinted = await tokenContract.totalSupply();
-    setTokensMinted(_tokensMinted);
-  } catch (err){
-    console.error(err);
-  }
-}; 
+
+      //Get all tokens that have been minted 
+      const _tokensMinted = await tokenContract.totalSupply();
+      setTokensMinted(_tokensMinted);
+    } catch (err) {
+      console.error(err);
+    }
+  } 
 
 // getOwner: get the contract owner by connected address
 
 const getOwner = async () => {
   try {
     const provider = await getProviderOrSigner();
-    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, TOKEN_CONTRACT_ABI, provider);
+    const tokenContract = new Contract(
+      TOKEN_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI,
+      provider
+    );
+
 
     //call the ownder function from the contract 
     const _owner = await tokenContract.owner();
@@ -192,7 +239,12 @@ const getOwner = async () => {
 const withdrawCoins = async () => {
   try {
     const signer = await getProviderOrSigner(true);
-    const tokenContract = new Contract(TOKEN_CONTRACT_ADDRESS, TOKEN_CONTRACT_ABI, provider);
+    //create an instance of token contract 
+    const tokenContract = new Contract(
+      TOKEN_CONTRACT_ADDRESS,
+      TOKEN_CONTRACT_ABI,
+      signer
+    );
 
     const tx = await tokenContract.withdraw();
     setLoading(true);
