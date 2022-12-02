@@ -66,7 +66,7 @@ pragma solidity ^0.8.7;
 
            //loop over the balance and get the token ID ownder by sender at a given idex of its token list 
            for (uint256 i = 0; i < balance; i++){
-               uint256 tokenId = CryptoDevsNFT.tokenOfOwnderByIndex(sender, i); 
+               uint256 tokenId = CryptoDevsNFT.tokenOfOwnerByIndex(sender, i); 
                // if the tokenId has not been claimed, increase the amount 
                if (!tokenIdsClaimed[tokenId]) {
                    amount += 1; 
